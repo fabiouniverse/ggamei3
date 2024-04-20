@@ -1,0 +1,365 @@
+<html><head>
+  <title>Gioco con Contatore</title>
+  <style>
+      body {
+      background-image: url('/Spazio di archiviazione interno/Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Documents/Sent/game-main(5)/ggamei3-main/sfondo.jpg.jpg');
+      
+    }
+    .lifeBar {
+      width: 100%;
+      height: 10px;
+      border-radius: 5px;
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+    }
+
+    .life {
+      height: 100%;
+      background-color: red;
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      height: 300px;
+      padding: 20px;
+      position: relative;
+    }
+
+    .tower {
+      width: 100px;
+      height: 200px;
+      background-color: grey;
+      border: 2px solid black;
+      border-radius: 10px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .life {
+      color: white;
+      font-weight: bold;
+      background-color: rgba(0, 0, 0, 0.7);
+      margin-top: 10px;
+      padding: 5px;
+      border-radius: 5px;
+    }
+
+    .door {
+      position: absolute;
+      bottom: 0;
+      width: 50px;
+      height: 50px;
+      background-color: #654321;
+      border: 3px solid #3c2f2f;
+      left: 25px;
+      border-radius: 10px 10px 0 0;
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,0.4);
+    }
+
+    .road {
+      position: absolute;
+      bottom: 20px;
+      left: 100px;
+      height: 5px;
+      background-color: black;
+      width: calc(100% - 200px);
+    }
+
+    /* Classe per il soldato rosso con immagine di sfondo */
+    .soldier.red {
+      position: absolute;
+      bottom: 11px;
+      left: 50px;
+      width: 90px;
+      height: 90px;
+      background-image: url('soldato.png'); /* Sostituisci 'url_dell_immagine.png' con il percorso dell'immagine desiderata per il soldato rosso */
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    /* Classe per il soldato giallo senza immagine di sfondo */
+    .yellowSoldier {
+      position: absolute;
+      bottom: 25px;
+      left: 50px;
+      width: 150px;
+      height: 140px;
+      background-image: url('dragone.png'); /* Sostituisci con il percorso della tua immagine */
+      background-size: cover;
+      background-repeat: no-repeat;
+      border-radius: 50%;
+    }
+/* Stile esistente per i soldati neri normali */
+.blackSoldier {
+    position: absolute;
+    bottom: 25px;
+    right: 50px;
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    border-radius: 50%;
+}
+
+/* Nuovo stile per i soldati neri giganti */
+.blackSoldier.giant {
+    width: 40px; /* Dimensione maggiore */
+    height: 40px; /* Dimensione maggiore */
+    background-color: black; /* Puoi scegliere un colore diverso per distinguerli, se lo desideri */
+    /* Altre proprietà CSS per il design del soldato gigante */
+}
+
+    .controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #startScreen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(to right, rgba(230, 100, 101, 0.8), rgba(145, 152, 229, 0.8));
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 10;
+    }
+
+    #startButton {
+      padding: 20px 40px;
+      font-size: 30px;
+      cursor: pointer;
+      background-color: #fff;
+      border: 2px solid #007BFF;
+      color: #007BFF;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    #startButton::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300%;
+      height: 300%;
+      background-color: #007BFF;
+      transition: all 0.3s ease;
+      border-radius: 50%;
+      z-index: -1;
+      transform: translate(-50%, -50%) scale(0);
+    }
+
+    #startButton:hover::after {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.6;
+    }
+
+    #startButton:hover {
+      color: white;
+    }
+
+  </style>
+</head>
+<body>
+<div id="startScreen">
+  <button id="startButton">Start</button>
+</div>
+
+<div class="container">
+  <div class="tower" id="leftTower">
+    <div class="lifeBar">
+      <div class="life" id="leftLife" style="width: 100%;"></div>
+    </div>
+    <div class="door"></div>
+  </div>
+
+  <div class="road"></div>
+
+  <div class="tower" id="rightTower">
+    <div class="lifeBar">
+      <div class="life" id="rightLife" style="width: 100%;"></div>
+    </div>
+    <div class="door"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <!-- Pulsante per schierare il Soldato Rosso -->
+  <button onclick="deploySoldier()">Schiera Soldato Rosso (-40 punti)</button>
+  <!-- Pulsante per schierare il Soldato Giallo -->
+  <button onclick="deployYellowSoldier()">Schiera Soldato Giallo (-100 punti)</button>
+  <form>
+    <label for="scoreCounter">Punteggio:</label>
+    <input type="text" id="scoreCounter" value="100" readonly="">
+  </form>
+</div>
+<script>
+
+const RED_SOLDIER_HEALTH = 20;
+const RED_SOLDIER_DAMAGE = 20;
+const YELLOW_SOLDIER_HEALTH = 120;
+const YELLOW_SOLDIER_DAMAGE = 20;
+const BLACK_SOLDIER_HEALTH = 20;
+const BLACK_SOLDIER_DAMAGE = 20;
+
+var score = 100;
+var leftTowerLife = 1000;
+var rightTowerLife = 1000;
+var blackSoldierCount = 0;
+
+document.getElementById('startButton').addEventListener('click', function() {
+    document.getElementById('startScreen').style.display = 'none';
+    document.querySelector('.container').style.display = 'flex';
+    document.querySelector('.controls').style.display = 'block';
+    setInterval(deployBlackSoldier, 1000);
+    setInterval(checkCollision, 50);
+});
+
+function deploySoldier() {
+    if (score >= 40) {
+        var soldier = document.createElement('div');
+        soldier.className = 'soldier red';
+        soldier.health = RED_SOLDIER_HEALTH;
+        soldier.damage = RED_SOLDIER_DAMAGE;
+        document.querySelector('.container').appendChild(soldier);
+        var rightTower = document.getElementById('rightTower');
+        var rightTowerLeftEdge = rightTower.offsetLeft;
+        var soldierInterval = setInterval(function() {
+            if (soldier.offsetLeft + 20 >= rightTowerLeftEdge) {
+                clearInterval(soldierInterval);
+                soldier.remove();
+                decreaseLife('rightLife', 20);
+            } else {
+                soldier.style.left = (soldier.offsetLeft + 2.5) + 'px';
+            }
+        }, 100);
+        score = Math.max(0, score - 40);
+        updateScoreDisplay();
+    }
+}
+
+function deployYellowSoldier() {
+    if (score >= 100) {
+        var yellowSoldier = document.createElement('div');
+        yellowSoldier.className = 'soldier yellowSoldier';
+        yellowSoldier.health = YELLOW_SOLDIER_HEALTH;
+        yellowSoldier.damage = YELLOW_SOLDIER_DAMAGE;
+        document.querySelector('.container').appendChild(yellowSoldier);
+        var rightTower = document.getElementById('rightTower');
+        var rightTowerLeftEdge = rightTower.offsetLeft;
+        var yellowSoldierInterval = setInterval(function() {
+            if (yellowSoldier.offsetLeft + 20 >= rightTowerLeftEdge) {
+                clearInterval(yellowSoldierInterval);
+                yellowSoldier.remove();
+                decreaseLife('rightLife', 20);
+            } else {
+                yellowSoldier.style.left = (yellowSoldier.offsetLeft + 2.5) + 'px';
+            }
+        }, 100);
+        score = Math.max(0, score - 100);
+        updateScoreDisplay();
+    }
+}
+
+function deployBlackSoldier() {
+    blackSoldierCount++;
+    var blackSoldier = document.createElement('div');
+
+    if (blackSoldierCount % 10 === 0) {
+        // Imposta le proprietà per il soldato nero gigante
+        blackSoldier.className = 'blackSoldier giant';
+        blackSoldier.style.width = '40px';
+        blackSoldier.style.height = '40px';
+        blackSoldier.health = 100; // Vita del soldato gigante
+        blackSoldier.damage = 40;  // Danno del soldato gigante
+    } else {
+        // Imposta le proprietà per il soldato nero normale
+        blackSoldier.className = 'blackSoldier';
+        blackSoldier.style.width = '20px';
+        blackSoldier.style.height = '20px';
+        blackSoldier.health = BLACK_SOLDIER_HEALTH;
+        blackSoldier.damage = BLACK_SOLDIER_DAMAGE;
+    }
+
+    document.querySelector('.container').appendChild(blackSoldier);
+    blackSoldier.style.right = '50px';
+
+    var leftTower = document.getElementById('leftTower');
+    var leftTowerRightEdge = leftTower.offsetLeft + leftTower.offsetWidth;
+
+    var blackSoldierInterval = setInterval(function() {
+        var currentRight = parseInt(blackSoldier.style.right, 10);
+        blackSoldier.style.right = (currentRight + 2.5) + 'px';
+        var soldierCurrentPos = document.querySelector('.container').offsetWidth - currentRight - blackSoldier.offsetWidth;
+
+        if (soldierCurrentPos <= leftTowerRightEdge && document.body.contains(blackSoldier)) {
+            clearInterval(blackSoldierInterval);
+            blackSoldier.remove();
+            decreaseLife('leftLife', 20);
+            incrementScore(50);
+        }
+
+        document.querySelectorAll('.soldier').forEach(soldier => {
+            if (Math.abs(blackSoldier.offsetLeft - soldier.offsetLeft) <= 20) {
+                soldier.remove();
+                blackSoldier.remove();
+                incrementScore(50);
+            }
+        });
+    }, 100);
+}
+
+function checkCollision() {
+    document.querySelectorAll('.yellowSoldier').forEach(yellowSoldier => {
+        document.querySelectorAll('.blackSoldier').forEach(blackSoldier => {
+            if (!blackSoldier.dataset.destroyedBy && Math.abs(blackSoldier.offsetLeft - yellowSoldier.offsetLeft) <= 30) {
+                blackSoldier.dataset.destroyedBy = yellowSoldier.id;
+                blackSoldier.remove();
+                yellowSoldier.health -= BLACK_SOLDIER_DAMAGE;
+                incrementScore(50);
+                if (yellowSoldier.health <= 0) {
+                    yellowSoldier.remove();
+                }
+            }
+        });
+    });
+}
+
+function incrementScore(value) {
+    score += value;
+    score = Math.max(0, score);
+    updateScoreDisplay();
+}
+
+function updateScoreDisplay() {
+    document.getElementById('scoreCounter').value = score;
+}
+
+function decreaseLife(towerLifeId, amount) {
+    var lifeElement = document.getElementById(towerLifeId);
+    if (towerLifeId === 'leftLife' && !this.dataset.origin) { // Decrementa solo se il soldato è stato generato dalla torre sinistra
+        leftTowerLife = Math.max(0, leftTowerLife - amount);
+        lifeElement.style.width = (leftTowerLife / 1000 * 100) + '%';
+    } else if (towerLifeId === 'rightLife' && this.dataset.origin !== 'right') { // Decrementa solo se il soldato è stato generato dalla torre destra
+        rightTowerLife = Math.max(0, rightTowerLife - amount);
+        lifeElement.style.width = (rightTowerLife / 1000 * 100) + '%';
+    }
+}
+
+</script>
+
+
+
+</body></html>
